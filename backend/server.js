@@ -1,23 +1,13 @@
-import { GoogleGenAI } from "@google/genai";
 import "dotenv/config";
+import express from "express";
+import cors from "cors";
 
-const ai = new GoogleGenAI({});
+const app = express();
+const PORT = 8080;
 
-const chat = ai.chats.create({
-  model: "gemini-2.5-flash",
-  history: [],
+app.use(express.json());
+app.use(cors());
+
+app.listen(PORT, () => {
+  console.log(`server is running on port ${PORT}`);
 });
-
-async function send() {
-  const response1 = await chat.sendMessage({
-    message: "I have two dogs in my house",
-  });
-  console.log("response 1: ", response1.text);
-
-  const response2 = await chat.sendMessage({
-    message: "How many paws are in the house",
-  });
-  console.log("response 2: ", response2.text);
-}
-
-await send();
