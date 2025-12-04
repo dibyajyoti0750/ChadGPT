@@ -13,7 +13,12 @@ export default async function getAIResponse(query) {
       },
     });
 
-    return response.text;
+    const content = response.candidates[0].content;
+
+    const text = content.parts[0].text;
+    const role = content.role;
+
+    return { text, role };
   } catch (err) {
     console.log(err);
   }
