@@ -7,11 +7,11 @@ export default function Layout(): ReactElement {
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
-      <aside className="border-r border-neutral-800 text-white bg-neutral-900">
+      <aside className="border-r border-neutral-900/90 text-white">
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       </aside>
 
-      <main className="flex-1 h-full overflow-y-auto bg-[#1e1e1e]">
+      <main className="flex-1 h-full overflow-y-auto bg-[#212121]">
         <Chat />
       </main>
     </div>

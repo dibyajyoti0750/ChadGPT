@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { Edit, PanelRight } from "lucide-react";
+import { ChevronDown, Edit, PanelRight } from "lucide-react";
 import { assets } from "../assets/assets";
 import { UserButton, useUser } from "@clerk/clerk-react";
 
@@ -15,24 +15,48 @@ export default function Sidebar({
   const { user } = useUser();
 
   const buttonStyles: string =
-    "flex justify-center items-center h-12 w-12 hover:bg-neutral-800 rounded-lg cursor-pointer";
+    "flex justify-center items-center h-12 w-12 hover:bg-[#383838] rounded-lg cursor-pointer";
 
   return (
     <>
       {sidebarOpen ? (
-        <div className="w-[260px] h-full flex flex-col justify-between p-2">
+        <div className="w-[260px] h-full flex flex-col justify-between p-2 bg-neutral-900">
           <div className="flex justify-between items-center p-3">
-            <div className="font-medium">ChadGPT</div>
+            <div className="flex items-center gap-2 font-medium text-xl">
+              <img
+                src={assets.logo}
+                alt="logo"
+                className="h-10 w-10 object-cover"
+              />
+              ChadGPT
+            </div>
             <div
               title="Close sidebar"
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className={buttonStyles}
             >
-              <PanelRight size={22} />
+              <PanelRight size={20} />
             </div>
           </div>
 
-          <div className="h-18 w-full flex items-center gap-2 rounded-lg p-2 hover:bg-neutral-800 cursor-pointer">
+          <div className="flex flex-col p-3 my-2">
+            <div className="flex items-center gap-3 p-3 hover:bg-[#383838] rounded-xl cursor-pointer">
+              <Edit size={20} />
+              New chat
+            </div>
+          </div>
+
+          <div className="flex-1 p-3">
+            <div className="group flex items-center gap-1 text-neutral-400">
+              Your chats
+              <ChevronDown
+                className="opacity-0 group-hover:opacity-100"
+                size={15}
+              />
+            </div>
+          </div>
+
+          <div className="h-18 w-full flex items-center gap-3 rounded-lg p-2 hover:bg-neutral-800">
             <UserButton />
             <div className="flex flex-col justify-center">
               <span className="font-medium">{user?.fullName}</span>
@@ -41,8 +65,8 @@ export default function Sidebar({
           </div>
         </div>
       ) : (
-        <div className="w-18 h-full flex flex-col justify-between items-center p-2">
-          <div className="flex flex-col gap-4 p-3">
+        <div className="w-18 h-full flex flex-col justify-between items-center p-2 bg-[#212121]">
+          <div className="flex flex-col gap-8 p-3">
             <div
               title="Open sidebar"
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -57,12 +81,12 @@ export default function Sidebar({
               </div>
               <PanelRight
                 className="absolute inset-0 m-auto opacity-0 transition-opacity duration-150 group-hover:opacity-100"
-                size={22}
+                size={20}
               />
             </div>
 
             <div title="New chat" className={buttonStyles}>
-              <Edit size={22} />
+              <Edit size={20} />
             </div>
           </div>
 
