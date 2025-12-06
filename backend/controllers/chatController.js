@@ -1,10 +1,8 @@
-import express from "express";
 import Thread from "../models/Thread.js";
 import getAIResponse from "../utils/gemini.js";
-const chatRouter = express.Router();
 
 // Get all threads
-chatRouter.get("/threads", async (req, res) => {
+export const getAllThreads = async (req, res) => {
   try {
     const threads = await Thread.find({}).sort("-updatedAt");
     res.json({ success: true, threads });
@@ -12,10 +10,10 @@ chatRouter.get("/threads", async (req, res) => {
     console.log(err);
     res.status(500).json({ success: false, error: "Failed to fetch threads" });
   }
-});
+};
 
 // Get individual thread
-chatRouter.get("/thread/:threadId", async (req, res) => {
+export const getThread = async (req, res) => {
   const { threadId } = req.params;
 
   try {
@@ -30,10 +28,10 @@ chatRouter.get("/thread/:threadId", async (req, res) => {
     console.log(err);
     res.status(500).json({ success: false, error: "Failed to fetch chat" });
   }
-});
+};
 
-// Delete
-chatRouter.delete("/thread/:threadId", async (req, res) => {
+// Delete a thread
+export const deleteThread = async (req, res) => {
   const { threadId } = req.params;
 
   try {
@@ -48,9 +46,10 @@ chatRouter.delete("/thread/:threadId", async (req, res) => {
     console.log(err);
     res.status(500).json({ success: false, error: "Failed to delete thread" });
   }
-});
+};
 
-chatRouter.post("/message", async (req, res) => {
+// Get AI response
+export const sendMessage = async (req, res) => {
   const { threadId, query } = req.body;
 
   if (!threadId || !query) {
@@ -81,6 +80,4 @@ chatRouter.post("/message", async (req, res) => {
     console.log(err);
     res.status(500).json({ success: false, error: "Something went wrong" });
   }
-});
-
-export default chatRouter;
+};
