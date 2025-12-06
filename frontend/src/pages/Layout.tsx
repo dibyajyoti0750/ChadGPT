@@ -11,7 +11,7 @@ export default function Layout(): ReactElement {
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       </aside>
 
-      <main className="flex-1 h-full overflow-y-auto bg-[#212121]">
+      <main className="flex-1 bg-[#212121] text-white">
         <Chat />
       </main>
     </div>

@@ -39,14 +39,14 @@ export default function Sidebar({
             </div>
           </div>
 
-          <div className="flex flex-col p-3 my-2">
+          <div className="flex flex-col my-3">
             <div className="flex items-center gap-3 p-3 hover:bg-[#383838] rounded-xl cursor-pointer">
               <Edit size={20} />
               New chat
             </div>
           </div>
 
-          <div className="flex-1 p-3">
+          <div className="flex-1 flex flex-col gap-2 p-3">
             <div className="group flex items-center gap-1 text-neutral-400">
               Your chats
               <ChevronDown
@@ -54,6 +54,15 @@ export default function Sidebar({
                 size={15}
               />
             </div>
+
+            <ul className="mt-1 space-y-1">
+              <li className="px-3 py-2 -ml-3 hover:bg-[#383838] rounded-xl cursor-pointer">
+                Thread1
+              </li>
+              <li className="px-3 py-2 -ml-3 hover:bg-[#383838] rounded-xl cursor-pointer">
+                Thread1
+              </li>
+            </ul>
           </div>
 
           <div className="h-18 w-full flex items-center gap-3 rounded-lg p-2 hover:bg-neutral-800">
@@ -66,7 +75,7 @@ export default function Sidebar({
         </div>
       ) : (
         <div className="w-18 h-full flex flex-col justify-between items-center p-2 bg-[#212121]">
-          <div className="flex flex-col gap-8 p-3">
+          <div className="flex flex-col gap-6 p-3">
             <div
               title="Open sidebar"
               onClick={() => setSidebarOpen(!sidebarOpen)}
