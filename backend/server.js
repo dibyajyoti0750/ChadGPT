@@ -3,14 +3,24 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import chatRouter from "./routes/chatRoutes.js";
+import { clerkMiddleware } from "@clerk/express";
 
 const app = express();
 const PORT = 8080;
 
 app.use(express.json());
 app.use(cors());
+app.use(clerkMiddleware());
 
+app.get("/", (req, res) => res.json("server is running"));
 app.use("/api/chat", chatRouter);
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.log(err);
+  const { status = 500, message = "Something went wrong" } = err;
+  res.status(status).json({ success: false, message });
+});
 
 const connectDB = async () => {
   try {

@@ -5,12 +5,14 @@ import {
   getThread,
   sendMessage,
 } from "../controllers/chatController.js";
+import { protect } from "../middlewares/auth.js";
+import wrapAsync from "../middlewares/wrapAsync.js";
 
 const chatRouter = express.Router();
 
-chatRouter.get("/threads", getAllThreads);
-chatRouter.get("/thread/:threadId", getThread);
-chatRouter.delete("/thread/:threadId", deleteThread);
-chatRouter.post("/message", sendMessage);
+chatRouter.get("/threads", protect, wrapAsync(getAllThreads));
+chatRouter.get("/thread/:threadId", protect, wrapAsync(getThread));
+chatRouter.delete("/thread/:threadId", protect, wrapAsync(deleteThread));
+chatRouter.post("/message", protect, wrapAsync(sendMessage));
 
 export default chatRouter;
