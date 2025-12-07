@@ -58,5 +58,5 @@ export const sendMessage = async (req, res) => {
   thread.updatedAt = new Date();
   await thread.save();
 
-  res.json({ success: true, data: aiReply.text });
+  res.json({ success: true, reply: aiReply.text });
 };
