@@ -39,8 +39,6 @@ export default function Chat(): ReactElement {
       if (data.success) {
         setResponse(data.reply ?? null);
         console.log(response);
-      } else {
-        toast.error(data.message ?? "Unknown error");
       }
     } catch (err) {
       const errorMessage =
@@ -49,72 +47,60 @@ export default function Chat(): ReactElement {
     }
   };
 
+  const InputBar = (
+    <div className="w-full max-w-4xl flex items-center gap-3 p-4 bg-[#303030] rounded-full">
+      <input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        type="text"
+        placeholder="Ask anything"
+        className="w-full px-3 bg-transparent outline-none text-white text-xl"
+      />
+      <button
+        disabled={!query}
+        onClick={getResponse}
+        className="p-2 rounded-full bg-white shrink-0 disabled:opacity-20 cursor-pointer"
+      >
+        <ArrowUp className="text-black" size={22} />
+      </button>
+    </div>
+  );
+
   return (
     <div className="h-screen w-full flex flex-col items-center px-4">
-      {/* Chat container */}
-      <div
-        className={`w-full max-w-4xl flex flex-col flex-1 overflow-y-auto py-6 gap-6`}
-      >
-        {/* User message */}
-        {querySent ? (
-          <div className="w-full text-right">
-            <p className="inline-block px-4 py-2 bg-[#303030] rounded-lg">
-              {lastQuery}
-            </p>
-          </div>
-        ) : (
-          <div className="translate-y-80 space-y-10">
+      {/* Chat Area */}
+      <div className="w-full max-w-4xl flex flex-col flex-1 overflow-y-auto py-6 gap-6">
+        {!querySent && (
+          <div className="flex flex-col items-center justify-center flex-1 space-y-8">
             <h1 className="text-2xl sm:text-3xl md:text-4xl text-center">
               Hi {user?.firstName}, Where should we start?
             </h1>
-
-            <div className="w-full max-w-4xl flex items-center gap-3 p-4 bg-[#303030] rounded-full mb-6">
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                type="text"
-                placeholder="Ask anything"
-                className="w-full px-3 bg-transparent outline-none text-white text-xl"
-              />
-              <button
-                type="submit"
-                disabled={!query}
-                onClick={getResponse}
-                className="p-2 rounded-full bg-white shrink-0 disabled:opacity-20 cursor-pointer"
-              >
-                <ArrowUp className="text-black" size={22} />
-              </button>
-            </div>
+            {InputBar}
           </div>
         )}
 
-        {/* AI response */}
-        {response && (
-          <div className="w-full text-left">
-            <p className="inline-block px-4 py-2 rounded-lg">{response}</p>
-          </div>
+        {querySent && (
+          <>
+            <div className="text-right">
+              <p className="inline-block px-6 py-4 text-lg bg-[#303030] rounded-full">
+                {lastQuery}
+              </p>
+            </div>
+
+            {response && (
+              <div className="text-left">
+                <p className="inline-block p-6 text-lg rounded-lg">
+                  {response}
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
 
-      {/* Input bar */}
+      {/* Bottom input bar when chat has started */}
       {querySent && (
-        <div className="w-full max-w-3xl flex items-center gap-3 p-4 bg-[#303030] rounded-full mb-6">
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            type="text"
-            placeholder="Ask anything"
-            className="w-full px-3 bg-transparent outline-none text-white text-xl"
-          />
-          <button
-            type="submit"
-            disabled={!query}
-            onClick={getResponse}
-            className="p-2 rounded-full bg-white shrink-0 disabled:opacity-20 cursor-pointer"
-          >
-            <ArrowUp className="text-black" size={22} />
-          </button>
-        </div>
+        <div className="w-full flex justify-center mb-6">{InputBar}</div>
       )}
     </div>
   );
