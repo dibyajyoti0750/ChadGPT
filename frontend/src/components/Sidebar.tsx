@@ -1,21 +1,59 @@
-import type { ReactElement } from "react";
+import { useEffect, useState, type ReactElement } from "react";
 import { ChevronDown, Edit, PanelRight } from "lucide-react";
 import { assets } from "../assets/assets";
-import { UserButton, useUser } from "@clerk/clerk-react";
+import { useAuth, UserButton, useUser } from "@clerk/clerk-react";
+import api from "../api/axios";
+import toast from "react-hot-toast";
 
 interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
 }
 
+interface Message {
+  _id: string;
+  role: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Thread {
+  _id: string;
+  threadId: string;
+  title: string;
+  messages: Message[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export default function Sidebar({
   sidebarOpen,
   setSidebarOpen,
 }: SidebarProps): ReactElement {
+  const [history, setHistory] = useState<Thread[]>([]);
   const { user } = useUser();
+  const { getToken } = useAuth();
 
   const buttonStyles: string =
     "flex justify-center items-center h-12 w-12 hover:bg-[#383838] rounded-lg cursor-pointer";
+
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const token = await getToken();
+        const { data } = await api.get("/api/chat/threads", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setHistory(data.threads);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Something went wrong";
+        toast.error(msg);
+      }
+    };
+
+    loadHistory();
+  }, []);
 
   return (
     <>
@@ -56,12 +94,11 @@ export default function Sidebar({
             </div>
 
             <ul className="mt-1 space-y-1">
-              <li className="px-3 py-2 -ml-3 hover:bg-[#383838] rounded-xl cursor-pointer">
-                Thread1
-              </li>
-              <li className="px-3 py-2 -ml-3 hover:bg-[#383838] rounded-xl cursor-pointer">
-                Thread1
-              </li>
+              {history.map(({ title }) => (
+                <li className="px-3 py-2 -ml-3 hover:bg-[#383838] rounded-xl cursor-pointer truncate">
+                  {title}
+                </li>
+              ))}
             </ul>
           </div>
 
