@@ -94,9 +94,12 @@ export default function Sidebar({
             </div>
 
             <ul className="mt-1 space-y-1">
-              {history.map(({ title }) => (
-                <li className="px-3 py-2 -ml-3 hover:bg-[#383838] rounded-xl cursor-pointer truncate">
-                  {title}
+              {history.map((thread, idx) => (
+                <li
+                  key={idx}
+                  className="px-3 py-2 -ml-3 hover:bg-[#383838] rounded-xl cursor-pointer truncate"
+                >
+                  {thread.title}
                 </li>
               ))}
             </ul>

@@ -57,6 +57,7 @@ export default function Chat(): ReactElement {
       <input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && getResponse()}
         type="text"
         placeholder="Ask anything"
         className="w-full px-4 bg-transparent outline-none text-white text-xl"
