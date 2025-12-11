@@ -1,10 +1,13 @@
-import { useEffect, type ReactElement } from "react";
-import { ChevronDown, Edit, PanelRight } from "lucide-react";
+import { useEffect, useState, type MouseEvent, type ReactElement } from "react";
+import { ChevronDown, Edit, Ellipsis, PanelRight, Trash2 } from "lucide-react";
 import { assets } from "../assets/assets";
 import { useAuth, UserButton, useUser } from "@clerk/clerk-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchThreads } from "../features/chats/chatSlice";
 import type { AppDispatch, RootState } from "../app/store";
+import api from "../api/axios";
+import toast from "react-hot-toast";
+import { Popover } from "@mui/material";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -15,11 +18,47 @@ export default function Sidebar({
   sidebarOpen,
   setSidebarOpen,
 }: SidebarProps): ReactElement {
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
+
   const { user } = useUser();
   const dispatch: AppDispatch = useDispatch();
   const history = useSelector((state: RootState) => state.chat.history);
 
   const { getToken } = useAuth();
+
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popover" : undefined;
+
+  const handleClick = (
+    event: MouseEvent<HTMLButtonElement>,
+    threadId: string
+  ) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedThreadId(threadId);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const deleteThread = async (threadId: string) => {
+    try {
+      const token = await getToken();
+      const { data } = await api.delete(`/api/chat/thread/${threadId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (data.success) {
+        toast.success(data.message);
+        dispatch(fetchThreads(token));
+        handleClose();
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Something went wrong";
+      toast.error(msg);
+    }
+  };
 
   const buttonStyles: string =
     "flex justify-center items-center h-12 w-12 hover:bg-[#383838] rounded-lg cursor-pointer";
@@ -59,7 +98,7 @@ export default function Sidebar({
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col gap-2 p-3">
+          <div className="flex-1 flex flex-col gap-2 p-3 overflow-y-auto no-scrollbar">
             <div className="group flex items-center gap-1 text-neutral-400">
               Your chats
               <ChevronDown
@@ -71,10 +110,19 @@ export default function Sidebar({
             <ul className="mt-1 space-y-1">
               {history.map((thread) => (
                 <li
-                  key={thread._id}
-                  className="px-3 py-2 -ml-3 hover:bg-[#383838] rounded-xl cursor-pointer truncate"
+                  key={thread.threadId}
+                  className="px-3 py-2 -ml-3 hover:bg-[#383838] rounded-xl cursor-pointer group"
                 >
-                  {thread.title}
+                  <div className="flex justify-between items-center gap-2">
+                    <div className="truncate">{thread.title}</div>
+
+                    <button onClick={(e) => handleClick(e, thread.threadId)}>
+                      <Ellipsis
+                        className="hidden group-hover:block cursor-pointer"
+                        size={18}
+                      />
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -87,6 +135,29 @@ export default function Sidebar({
               <span className="text-sm text-neutral-400">Free</span>
             </div>
           </div>
+
+          <Popover
+            id={id}
+            open={open}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "left",
+            }}
+          >
+            <div className="flex flex-col p-2">
+              <div
+                onClick={() =>
+                  selectedThreadId && deleteThread(selectedThreadId)
+                }
+                className="flex items-center gap-1 text-red-600 hover:bg-red-200 rounded text-sm font-medium p-2 cursor-pointer"
+              >
+                <Trash2 size={15} />
+                Delete
+              </div>
+            </div>
+          </Popover>
         </div>
       ) : (
         <div className="w-18 h-full flex flex-col justify-between items-center p-2 bg-[#212121]">
