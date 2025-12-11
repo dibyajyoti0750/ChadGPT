@@ -4,6 +4,9 @@ import { v4 as uuidv4 } from "uuid";
 import api from "../api/axios";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { fetchThreads } from "../features/chats/chatSlice";
+import type { AppDispatch } from "../app/store";
 
 interface AIResponse {
   success: boolean;
@@ -20,6 +23,7 @@ export default function Chat(): ReactElement {
 
   const { getToken } = useAuth();
   const { user } = useUser();
+  const dispatch: AppDispatch = useDispatch();
 
   const getResponse = async (): Promise<void> => {
     if (!query) return;
@@ -39,11 +43,8 @@ export default function Chat(): ReactElement {
       );
 
       if (data.success) {
-        setResponses((prev) => {
-          const updated = [...prev, data.reply ?? null];
-          console.log(updated);
-          return updated;
-        });
+        setResponses((prev) => [...prev, data.reply ?? null]);
+        dispatch(fetchThreads(token));
       }
     } catch (err) {
       const errorMessage =
