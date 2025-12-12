@@ -59,7 +59,7 @@ export const sendMessage = createAsyncThunk(
       query,
       token,
     }: { threadId: string | null; query: string; token: string | null },
-    { rejectWithValue }
+    { rejectWithValue, dispatch }
   ) => {
     try {
       const { data } = await api.post(
@@ -67,6 +67,10 @@ export const sendMessage = createAsyncThunk(
         { threadId, query },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
+      if (data.success) {
+        dispatch(fetchThreads(token));
+      }
 
       return data;
     } catch (err) {
@@ -98,14 +102,17 @@ const chatSlice = createSlice({
       .addCase(fetchThreads.fulfilled, (state, action) => {
         state.history = action.payload;
       })
-      .addCase(sendMessage.pending, (state) => {
+      .addCase(sendMessage.pending, (state, action) => {
+        if (action.meta.arg.query) {
+          state.previousQueries.push(action.meta.arg.query);
+        }
+
         state.loading = true;
       })
       .addCase(sendMessage.fulfilled, (state, action) => {
         state.loading = false;
 
         if (action.payload?.success) {
-          state.previousQueries.push(action.meta.arg.query);
           state.responses.push(action.payload.reply ?? null);
         }
       })
