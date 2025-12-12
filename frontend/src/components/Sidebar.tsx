@@ -166,12 +166,12 @@ export default function Sidebar({
               horizontal: "left",
             }}
           >
-            <div className="flex flex-col p-2">
+            <div className="flex flex-col p-1.5">
               <div
                 onClick={() =>
                   selectedThreadId && deleteThread(selectedThreadId)
                 }
-                className="flex items-center gap-1 text-red-600 hover:bg-red-200 rounded text-sm font-medium p-2 cursor-pointer"
+                className="flex items-center gap-1 text-red-600 hover:bg-red-200 rounded text-sm font-medium p-1.5 cursor-pointer"
               >
                 <Trash2 size={15} />
                 Delete

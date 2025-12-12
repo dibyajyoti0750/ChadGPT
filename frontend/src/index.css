@@ -12,3 +12,12 @@ html {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+.hljs {
+  border-radius: 1rem;
+  padding: 2rem 1.2rem !important;
+}
+
+.hljs::-webkit-scrollbar {
+  display: none;
+}

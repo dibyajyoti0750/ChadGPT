@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import { useUser } from "@clerk/clerk-react";
 import Layout from "./pages/Layout";
 import { Toaster } from "react-hot-toast";
+import "highlight.js/styles/github-dark.css";
 
 export default function App(): ReactElement {
   const { user } = useUser();

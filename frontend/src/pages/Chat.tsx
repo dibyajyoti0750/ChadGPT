@@ -8,10 +8,12 @@ import { useDispatch } from "react-redux";
 import { fetchThreads } from "../features/chats/chatSlice";
 import type { AppDispatch } from "../app/store";
 import Navbar from "../components/Navbar";
+import Markdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
 
 interface AIResponse {
   success: boolean;
-  reply?: string | number;
+  reply?: string;
   message?: string;
 }
 
@@ -19,7 +21,7 @@ export default function Chat(): ReactElement {
   const [query, setQuery] = useState<string>("");
   const [querySent, setQuerySent] = useState<boolean>(false);
   const [previousQueries, setPreviousQueries] = useState<string[]>([]);
-  const [responses, setResponses] = useState<(string | number | null)[]>([]);
+  const [responses, setResponses] = useState<(string | null)[]>([]);
   const [threadId] = useState<string>(uuidv4());
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -60,7 +62,7 @@ export default function Chat(): ReactElement {
   };
 
   const InputBar = (
-    <div className="w-full max-w-4xl flex items-center gap-3 p-3 bg-[#303030] rounded-full shadow-lg">
+    <div className="w-full max-w-3xl flex items-center gap-3 p-3 bg-[#303030] rounded-full shadow-lg">
       <input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
@@ -87,7 +89,7 @@ export default function Chat(): ReactElement {
     <div className="h-screen w-full flex flex-col items-center">
       <Navbar />
 
-      <div className="w-full max-w-4xl flex flex-col flex-1 overflow-y-auto py-6 gap-3 no-scrollbar">
+      <div className="w-full max-w-3xl flex flex-col flex-1 overflow-y-auto py-6 gap-3 no-scrollbar">
         {!querySent && (
           <div className="flex flex-col items-center justify-center pb-60 flex-1 space-y-10">
             <h1 className="text-2xl sm:text-3xl md:text-4xl text-center">
@@ -111,9 +113,11 @@ export default function Chat(): ReactElement {
                 {/* AI message */}
                 {responses[index] !== undefined && (
                   <div className="text-left">
-                    <p className="inline-block p-6 text-lg rounded-lg">
-                      {responses[index]}
-                    </p>
+                    <div className="px-5 py-3 text-lg rounded-lg [&_p]:my-5 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-3 [&_li]:my-3">
+                      <Markdown rehypePlugins={[rehypeHighlight]}>
+                        {responses[index]}
+                      </Markdown>
+                    </div>
                   </div>
                 )}
               </div>
