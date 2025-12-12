@@ -1,4 +1,4 @@
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, LoaderCircle } from "lucide-react";
 import { useState, type ReactElement } from "react";
 import { v4 as uuidv4 } from "uuid";
 import api from "../api/axios";
@@ -20,6 +20,7 @@ export default function Chat(): ReactElement {
   const [previousQueries, setPreviousQueries] = useState<string[]>([]);
   const [responses, setResponses] = useState<(string | number | null)[]>([]);
   const [threadId] = useState<string>(uuidv4());
+  const [loading, setLoading] = useState<boolean>(false);
 
   const { getToken } = useAuth();
   const { user } = useUser();
@@ -34,6 +35,8 @@ export default function Chat(): ReactElement {
     setQuerySent(true);
 
     try {
+      setLoading(true);
+
       const token = await getToken();
 
       const { data } = await api.post<AIResponse>(
@@ -50,6 +53,8 @@ export default function Chat(): ReactElement {
       const errorMessage =
         err instanceof Error ? err.message : "Something went wrong";
       toast.error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -68,14 +73,18 @@ export default function Chat(): ReactElement {
         onClick={getResponse}
         className="p-2 rounded-full bg-white shrink-0 disabled:opacity-20 cursor-pointer"
       >
-        <ArrowUp className="text-black" size={22} />
+        {loading ? (
+          <LoaderCircle className="text-black animate-spin" size={22} />
+        ) : (
+          <ArrowUp className="text-black" size={22} />
+        )}
       </button>
     </div>
   );
 
   return (
     <div className="h-screen w-full flex flex-col items-center px-4">
-      <div className="w-full max-w-4xl flex flex-col flex-1 overflow-y-auto py-6 gap-3">
+      <div className="w-full max-w-4xl flex flex-col flex-1 overflow-y-auto py-6 gap-3 no-scrollbar">
         {!querySent && (
           <div className="flex flex-col items-center justify-center pb-60 flex-1 space-y-10">
             <h1 className="text-2xl sm:text-3xl md:text-4xl text-center">
@@ -106,6 +115,10 @@ export default function Chat(): ReactElement {
                 )}
               </div>
             ))}
+
+            {loading && (
+              <div className="h-5 w-5 rounded-full bg-white animate-bounce m-6"></div>
+            )}
           </>
         )}
       </div>
