@@ -180,7 +180,10 @@ export default function Sidebar({
           </Popover>
         </div>
       ) : (
-        <div className="w-18 h-full flex flex-col justify-between items-center p-2 bg-[#212121]">
+        <div
+          onClick={() => setSidebarOpen(true)}
+          className="w-18 h-full flex flex-col justify-between items-center p-2 bg-[#212121] cursor-ew-resize"
+        >
           <div className="flex flex-col gap-6 p-3">
             <div
               title="Open sidebar"

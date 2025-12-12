@@ -1,12 +1,16 @@
 import { ArrowUp, LoaderCircle } from "lucide-react";
-import { useState, type ReactElement } from "react";
+import { useEffect, useState, type ReactElement } from "react";
 import { v4 as uuidv4 } from "uuid";
 import api from "../api/axios";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
-import { fetchThreads } from "../features/chats/chatSlice";
-import type { AppDispatch } from "../app/store";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchThreads,
+  sendMessage,
+  setThreadId,
+} from "../features/chats/chatSlice";
+import type { AppDispatch, RootState } from "../app/store";
 import Navbar from "../components/Navbar";
 import Markdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
@@ -19,47 +23,26 @@ interface AIResponse {
 
 export default function Chat(): ReactElement {
   const [query, setQuery] = useState<string>("");
-  const [querySent, setQuerySent] = useState<boolean>(false);
-  const [previousQueries, setPreviousQueries] = useState<string[]>([]);
-  const [responses, setResponses] = useState<(string | null)[]>([]);
-  const [threadId] = useState<string>(uuidv4());
-  const [loading, setLoading] = useState<boolean>(false);
+  const threadId = useSelector((state: RootState) => state.chat.threadId);
+  const previousQueries = useSelector(
+    (state: RootState) => state.chat.previousQueries
+  );
+  const responses = useSelector((state: RootState) => state.chat.responses);
+  const loading = useSelector((state: RootState) => state.chat.loading);
 
   const { getToken } = useAuth();
   const { user } = useUser();
   const dispatch: AppDispatch = useDispatch();
 
-  const getResponse = async (): Promise<void> => {
-    if (!query) return;
-
-    const userQuery = query;
-    setPreviousQueries((prev) => [...prev, userQuery]);
-    setQuery("");
-    setQuerySent(true);
-
-    try {
-      setLoading(true);
-
-      const token = await getToken();
-
-      const { data } = await api.post<AIResponse>(
-        "/api/chat/message",
-        { threadId, query: userQuery },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      if (data.success) {
-        setResponses((prev) => [...prev, data.reply ?? null]);
-        dispatch(fetchThreads(token));
-      }
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Something went wrong";
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
+  const getResponse = async () => {
+    if (!query || !threadId) return;
+    const token = await getToken();
+    dispatch(sendMessage({ threadId, query, token }));
   };
+
+  useEffect(() => {
+    dispatch(setThreadId(uuidv4()));
+  }, [dispatch]);
 
   const InputBar = (
     <div className="w-full max-w-3xl flex items-center gap-3 p-3 bg-[#303030] rounded-full shadow-lg">
@@ -72,7 +55,7 @@ export default function Chat(): ReactElement {
         className="w-full px-4 bg-transparent outline-none text-white text-xl"
       />
       <button
-        disabled={!query}
+        disabled={!query || loading}
         onClick={getResponse}
         className="p-2 rounded-full bg-white shrink-0 disabled:opacity-20 cursor-pointer"
       >
@@ -90,7 +73,7 @@ export default function Chat(): ReactElement {
       <Navbar />
 
       <div className="w-full max-w-3xl flex flex-col flex-1 overflow-y-auto py-6 gap-3 no-scrollbar">
-        {!querySent && (
+        {!previousQueries.length && (
           <div className="flex flex-col items-center justify-center pb-60 flex-1 space-y-10">
             <h1 className="text-2xl sm:text-3xl md:text-4xl text-center">
               Hi {user?.firstName}, Where should we start?
@@ -99,7 +82,7 @@ export default function Chat(): ReactElement {
           </div>
         )}
 
-        {querySent && (
+        {previousQueries && (
           <>
             {previousQueries.map((userMsg, index) => (
               <div key={index}>
@@ -130,7 +113,7 @@ export default function Chat(): ReactElement {
         )}
       </div>
 
-      {querySent && (
+      {previousQueries && (
         <div className="w-full flex justify-center mb-6">{InputBar}</div>
       )}
     </div>
