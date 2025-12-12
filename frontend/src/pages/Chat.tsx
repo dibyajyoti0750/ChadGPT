@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { fetchThreads } from "../features/chats/chatSlice";
 import type { AppDispatch } from "../app/store";
+import Navbar from "../components/Navbar";
 
 interface AIResponse {
   success: boolean;
@@ -83,7 +84,9 @@ export default function Chat(): ReactElement {
   );
 
   return (
-    <div className="h-screen w-full flex flex-col items-center px-4">
+    <div className="h-screen w-full flex flex-col items-center">
+      <Navbar />
+
       <div className="w-full max-w-4xl flex flex-col flex-1 overflow-y-auto py-6 gap-3 no-scrollbar">
         {!querySent && (
           <div className="flex flex-col items-center justify-center pb-60 flex-1 space-y-10">
@@ -99,8 +102,8 @@ export default function Chat(): ReactElement {
             {previousQueries.map((userMsg, index) => (
               <div key={index}>
                 {/* User message */}
-                <div className="text-right">
-                  <p className="inline-block px-6 py-4 text-lg bg-[#303030] rounded-full">
+                <div className="text-right mx-2">
+                  <p className="inline-block px-5 py-4 text-lg bg-[#303030] rounded-full">
                     {userMsg}
                   </p>
                 </div>

@@ -1,5 +1,12 @@
 import { useEffect, useState, type MouseEvent, type ReactElement } from "react";
-import { ChevronDown, Edit, Ellipsis, PanelRight, Trash2 } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  Edit,
+  Ellipsis,
+  PanelRight,
+  Trash2,
+} from "lucide-react";
 import { assets } from "../assets/assets";
 import { useAuth, UserButton, useUser } from "@clerk/clerk-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,6 +27,7 @@ export default function Sidebar({
 }: SidebarProps): ReactElement {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
+  const [showHistory, setShowHistory] = useState<boolean>(true);
 
   const { user } = useUser();
   const dispatch: AppDispatch = useDispatch();
@@ -99,33 +107,45 @@ export default function Sidebar({
           </div>
 
           <div className="flex-1 flex flex-col gap-2 p-3 overflow-y-auto no-scrollbar">
-            <div className="group flex items-center gap-1 text-neutral-400">
+            <div
+              onClick={() => setShowHistory(!showHistory)}
+              className="group flex items-center gap-1 text-neutral-400 cursor-pointer"
+            >
               Your chats
-              <ChevronDown
-                className="opacity-0 group-hover:opacity-100"
-                size={15}
-              />
+              {showHistory ? (
+                <ChevronDown
+                  className="opacity-0 group-hover:opacity-100"
+                  size={15}
+                />
+              ) : (
+                <ChevronRight
+                  className="opacity-0 group-hover:opacity-100"
+                  size={15}
+                />
+              )}
             </div>
 
-            <ul className="mt-1 space-y-1">
-              {history.map((thread) => (
-                <li
-                  key={thread.threadId}
-                  className="px-3 py-2 -ml-3 hover:bg-[#383838] rounded-xl cursor-pointer group"
-                >
-                  <div className="flex justify-between items-center gap-2">
-                    <div className="truncate">{thread.title}</div>
+            {showHistory && (
+              <ul className="mt-1 space-y-1">
+                {history.map((thread) => (
+                  <li
+                    key={thread.threadId}
+                    className="px-3 py-2 -ml-3 hover:bg-[#383838] rounded-xl cursor-pointer group"
+                  >
+                    <div className="flex justify-between items-center gap-2">
+                      <div className="truncate">{thread.title}</div>
 
-                    <button onClick={(e) => handleClick(e, thread.threadId)}>
-                      <Ellipsis
-                        className="hidden group-hover:block cursor-pointer"
-                        size={18}
-                      />
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                      <button onClick={(e) => handleClick(e, thread.threadId)}>
+                        <Ellipsis
+                          className="hidden group-hover:block cursor-pointer"
+                          size={18}
+                        />
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           <div className="h-18 w-full flex items-center gap-3 rounded-lg p-2 hover:bg-neutral-800">
