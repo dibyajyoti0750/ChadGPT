@@ -26,12 +26,12 @@ export default function Chat(): ReactElement {
   const dispatch: AppDispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(setThreadId(uuidv4()));
-
-    if (inputRef.current) {
-      inputRef.current.focus();
+    if (!threadId) {
+      dispatch(setThreadId(uuidv4()));
     }
-  }, [dispatch]);
+
+    inputRef.current?.focus();
+  }, [threadId, dispatch]);
 
   const getResponse = async () => {
     if (bottomRef.current) {
@@ -52,18 +52,22 @@ export default function Chat(): ReactElement {
   };
 
   const InputBar = (
-    <div className="w-full max-w-3xl flex items-center gap-3 p-3 bg-[#303030] rounded-full shadow-lg">
+    <div className="w-full max-w-3xl flex items-center gap-3 p-2.5 bg-[#303030] rounded-full shadow-lg">
       <input
         ref={inputRef}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && getResponse()}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            getResponse();
+          }
+        }}
         type="text"
         placeholder="Ask anything"
         className="w-full px-4 bg-transparent outline-none text-white text-xl"
       />
       <button
-        disabled={!query || loading}
+        disabled={!query || !threadId || loading}
         onClick={getResponse}
         className="p-2 rounded-full bg-white shrink-0 disabled:opacity-20 cursor-pointer"
       >

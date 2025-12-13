@@ -10,7 +10,7 @@ import {
 import { assets } from "../assets/assets";
 import { useAuth, UserButton, useUser } from "@clerk/clerk-react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchThreads } from "../features/chats/chatSlice";
+import { fetchThreads, resetChat } from "../features/chats/chatSlice";
 import type { AppDispatch, RootState } from "../app/store";
 import api from "../api/axios";
 import toast from "react-hot-toast";
@@ -100,7 +100,10 @@ export default function Sidebar({
           </div>
 
           <div className="flex flex-col my-3">
-            <div className="flex items-center gap-3 p-3 hover:bg-[#383838] rounded-xl cursor-pointer">
+            <div
+              onClick={() => dispatch(resetChat())}
+              className="flex items-center gap-3 p-3 hover:bg-[#383838] rounded-xl cursor-pointer"
+            >
               <Edit size={20} />
               New chat
             </div>
@@ -181,7 +184,11 @@ export default function Sidebar({
         </div>
       ) : (
         <div
-          onClick={() => setSidebarOpen(true)}
+          onClick={(e) => {
+            if (e.currentTarget === e.target) {
+              setSidebarOpen(true);
+            }
+          }}
           className="w-18 h-full flex flex-col justify-between items-center p-2 bg-[#212121] cursor-ew-resize"
         >
           <div className="flex flex-col gap-6 p-3">
@@ -203,7 +210,14 @@ export default function Sidebar({
               />
             </div>
 
-            <div title="New chat" className={buttonStyles}>
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                dispatch(resetChat());
+              }}
+              title="New chat"
+              className={buttonStyles}
+            >
               <Edit size={20} />
             </div>
           </div>
