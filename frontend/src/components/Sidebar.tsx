@@ -36,6 +36,7 @@ export default function Sidebar({
   const { user } = useUser();
   const dispatch: AppDispatch = useDispatch();
   const history = useSelector((state: RootState) => state.chat.history);
+  console.log(history);
 
   const { getToken } = useAuth();
 
@@ -165,7 +166,7 @@ export default function Sidebar({
             )}
           </div>
 
-          <div className="h-18 w-full flex items-center gap-3 rounded-lg p-2 hover:bg-neutral-800">
+          <div className="h-16 w-full flex items-center gap-3 rounded-lg p-2 hover:bg-neutral-800">
             <UserButton />
             <div className="flex flex-col justify-center">
               <span className="font-medium">{user?.fullName}</span>

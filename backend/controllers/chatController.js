@@ -1,18 +1,33 @@
 import Thread from "../models/Thread.js";
+import User from "../models/User.js";
 import ExpressError from "../utils/ExpressError.js";
 import getAIResponse from "../utils/gemini.js";
 
 // Get all threads
 export const getAllThreads = async (req, res) => {
-  const threads = await Thread.find({}).sort("-updatedAt");
+  const { userId: clerkUserId } = req.auth();
+
+  const user = await User.findOne({ clerkUserId });
+  if (!user) throw new ExpressError(404, "User not found");
+
+  const threads = await Thread.find({ user: user._id }).sort("-updatedAt");
+
   res.json({ success: true, threads });
 };
 
 // Get individual thread
 export const getThread = async (req, res) => {
+  const { userId: clerkUserId } = req.auth();
   const { threadId } = req.params;
 
-  const thread = await Thread.findOne({ threadId });
+  const user = await User.findOne({ clerkUserId });
+  if (!user) throw new ExpressError(404, "User not found");
+
+  const thread = await Thread.findOne({
+    threadId,
+    user: user._id,
+  });
+
   if (!thread) {
     throw new ExpressError(404, "Thread not found");
   }
@@ -22,9 +37,17 @@ export const getThread = async (req, res) => {
 
 // Delete a thread
 export const deleteThread = async (req, res) => {
+  const { userId: clerkUserId } = req.auth();
   const { threadId } = req.params;
 
-  const deletedThread = await Thread.findOneAndDelete({ threadId });
+  const user = await User.findOne({ clerkUserId });
+  if (!user) throw new ExpressError(404, "User not found");
+
+  const deletedThread = await Thread.findOneAndDelete({
+    threadId,
+    user: user._id,
+  });
+
   if (!deletedThread) {
     throw new ExpressError(404, "Thread not found");
   }
@@ -34,17 +57,25 @@ export const deleteThread = async (req, res) => {
 
 // Get AI response
 export const sendMessage = async (req, res) => {
+  const { userId: clerkUserId } = req.auth();
   const { threadId, query } = req.body;
 
   if (!threadId || !query) {
     throw new ExpressError(400, "Missing required fields");
   }
 
-  let thread = await Thread.findOne({ threadId });
+  const user = await User.findOne({ clerkUserId });
+  if (!user) throw new ExpressError(404, "User not found");
+
+  let thread = await Thread.findOne({
+    threadId,
+    user: user._id,
+  });
 
   if (!thread) {
     thread = new Thread({
       threadId,
+      user: user._id,
       title: query,
       messages: [{ role: "user", content: query }],
     });
@@ -55,7 +86,7 @@ export const sendMessage = async (req, res) => {
   const aiReply = await getAIResponse(query);
 
   thread.messages.push({ role: aiReply.role, content: aiReply.text });
-  thread.updatedAt = new Date();
+
   await thread.save();
 
   res.json({ success: true, reply: aiReply.text });
