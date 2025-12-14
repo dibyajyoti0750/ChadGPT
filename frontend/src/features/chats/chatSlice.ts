@@ -27,6 +27,14 @@ interface ChatState {
   loading: boolean;
 }
 
+interface Msg {
+  role: "user" | "model";
+  content: string;
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const initialState: ChatState = {
   history: [],
   threadId: null,
@@ -81,6 +89,26 @@ export const sendMessage = createAsyncThunk(
   }
 );
 
+export const getThreadById = createAsyncThunk(
+  "chat/getThreadById",
+  async (
+    { threadId, token }: { threadId: string; token: string | null },
+    { rejectWithValue }
+  ) => {
+    try {
+      const { data } = await api.get(`/api/chat/thread/${threadId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      return data.thread;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Something went wrong";
+      toast.error(msg);
+      return rejectWithValue(msg);
+    }
+  }
+);
+
 const chatSlice = createSlice({
   name: "chat",
   initialState,
@@ -102,6 +130,21 @@ const chatSlice = createSlice({
       .addCase(fetchThreads.fulfilled, (state, action) => {
         state.history = action.payload;
       })
+
+      .addCase(getThreadById.fulfilled, (state, action) => {
+        const { threadId, messages } = action.payload;
+
+        state.threadId = threadId;
+
+        state.previousQueries = messages
+          .filter((msg: Msg) => msg.role === "user")
+          .map((msg: Msg) => msg.content);
+
+        state.responses = messages
+          .filter((msg: Msg) => msg.role === "model")
+          .map((msg: Msg) => msg.content);
+      })
+
       .addCase(sendMessage.pending, (state, action) => {
         if (action.meta.arg.query) {
           state.previousQueries.push(action.meta.arg.query);
@@ -109,6 +152,7 @@ const chatSlice = createSlice({
 
         state.loading = true;
       })
+
       .addCase(sendMessage.fulfilled, (state, action) => {
         state.loading = false;
 
@@ -116,6 +160,7 @@ const chatSlice = createSlice({
           state.responses.push(action.payload.reply ?? null);
         }
       })
+
       .addCase(sendMessage.rejected, (state) => {
         state.loading = false;
       });

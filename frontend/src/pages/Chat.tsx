@@ -115,13 +115,14 @@ export default function Chat(): ReactElement {
                 )}
               </div>
             ))}
-
-            {loading && (
-              <div className="h-5 w-5 rounded-full bg-white animate-bounce m-6"></div>
-            )}
           </>
         )}
-        <div ref={bottomRef} className="pb-20"></div>
+
+        <div ref={bottomRef} className="pb-20">
+          {loading && (
+            <div className="h-5 w-5 rounded-full bg-white animate-bounce m-6"></div>
+          )}
+        </div>
       </div>
 
       {previousQueries.length > 0 && (

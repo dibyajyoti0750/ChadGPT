@@ -10,7 +10,11 @@ import {
 import { assets } from "../assets/assets";
 import { useAuth, UserButton, useUser } from "@clerk/clerk-react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchThreads, resetChat } from "../features/chats/chatSlice";
+import {
+  fetchThreads,
+  getThreadById,
+  resetChat,
+} from "../features/chats/chatSlice";
 import type { AppDispatch, RootState } from "../app/store";
 import api from "../api/axios";
 import toast from "react-hot-toast";
@@ -48,6 +52,11 @@ export default function Sidebar({
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleFetchThread = async (threadId: string) => {
+    const token = await getToken();
+    dispatch(getThreadById({ threadId, token }));
   };
 
   const deleteThread = async (threadId: string) => {
@@ -136,7 +145,12 @@ export default function Sidebar({
                     className="px-3 py-2 -ml-3 hover:bg-[#383838] rounded-xl cursor-pointer group"
                   >
                     <div className="flex justify-between items-center gap-2">
-                      <div className="truncate">{thread.title}</div>
+                      <div
+                        onClick={() => handleFetchThread(thread.threadId)}
+                        className="truncate"
+                      >
+                        {thread.title}
+                      </div>
 
                       <button onClick={(e) => handleClick(e, thread.threadId)}>
                         <Ellipsis
