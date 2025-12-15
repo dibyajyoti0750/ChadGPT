@@ -36,7 +36,6 @@ export default function Sidebar({
   const { user } = useUser();
   const dispatch: AppDispatch = useDispatch();
   const history = useSelector((state: RootState) => state.chat.history);
-  console.log(history);
 
   const { getToken } = useAuth();
 
@@ -138,7 +137,7 @@ export default function Sidebar({
               )}
             </div>
 
-            {showHistory && (
+            {showHistory && Array.isArray(history) && (
               <ul className="mt-1 space-y-1">
                 {history.map((thread) => (
                   <li

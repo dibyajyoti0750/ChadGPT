@@ -51,10 +51,11 @@ export const fetchThreads = createAsyncThunk(
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      return data.threads;
+      return data.threads || [];
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Something went wrong";
       toast.error(msg);
+      return [];
     }
   }
 );
