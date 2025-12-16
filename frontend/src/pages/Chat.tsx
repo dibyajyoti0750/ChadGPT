@@ -1,5 +1,11 @@
 import { ArrowUp, LoaderCircle } from "lucide-react";
-import { useEffect, useRef, useState, type ReactElement } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type ReactElement,
+} from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth, useUser } from "@clerk/clerk-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,6 +19,7 @@ export default function Chat(): ReactElement {
   const [query, setQuery] = useState<string>("");
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const loading = useSelector((state: RootState) => state.chat.loading);
   const threadId = useSelector((state: RootState) => state.chat.threadId);
@@ -24,6 +31,16 @@ export default function Chat(): ReactElement {
   const { getToken } = useAuth();
   const { user } = useUser();
   const dispatch: AppDispatch = useDispatch();
+
+  const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setQuery(e.target.value);
+
+    const el = textareaRef.current;
+    if (!el) return;
+
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  };
 
   useEffect(() => {
     if (!threadId) {
@@ -52,20 +69,22 @@ export default function Chat(): ReactElement {
   };
 
   const InputBar = (
-    <div className="w-full max-w-3xl flex items-center gap-3 p-2.5 bg-[#303030] rounded-full shadow-lg">
-      <input
-        ref={inputRef}
+    <div className="w-full max-w-3xl flex items-center gap-3 p-2.5 bg-[#303030] rounded-4xl shadow-lg">
+      <textarea
+        ref={textareaRef}
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={handleChange}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
             getResponse();
           }
         }}
-        type="text"
+        rows={1}
         placeholder="Ask anything"
-        className="w-full px-4 bg-transparent outline-none text-white text-xl"
+        className="w-full px-4 bg-transparent outline-none text-white text-xl resize-none leading-relaxed max-h-40 overflow-y-auto no-scrollbar"
       />
+
       <button
         disabled={!query || !threadId || loading}
         onClick={getResponse}
